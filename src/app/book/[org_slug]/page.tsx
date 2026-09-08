@@ -1,9 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { MapPin, Check, Plus, Clock } from 'lucide-react'
 
 // --- Mock Data ---
 const MOCK_MEMBER = {
@@ -32,7 +29,7 @@ interface DaySchedule {
 
 const MOCK_SCHEDULE: DaySchedule[] = [
   {
-    dateLabel: 'Today, Sep 7',
+    dateLabel: 'Today',
     classes: [
       {
         id: 'c1',
@@ -70,7 +67,7 @@ const MOCK_SCHEDULE: DaySchedule[] = [
     ]
   },
   {
-    dateLabel: 'Tomorrow, Sep 8',
+    dateLabel: 'Tomorrow',
     classes: [
       {
         id: 'c4',
@@ -94,45 +91,38 @@ export default function PublicBookingPage() {
     setBookingLoading(id)
     setTimeout(() => {
       setBookingLoading(null)
-      // Optimistic update would go here
-      alert('Class booked successfully! 1 credit deducted.')
-    }, 800)
-  }
-
-  const handleWaitlist = (id: string) => {
-    setBookingLoading(id)
-    setTimeout(() => {
-      setBookingLoading(null)
-      alert('Joined waitlist! You will be notified if a spot opens.')
+      alert('Booked.')
     }, 800)
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 font-sans">
-      {/* Header */}
-      <header className="bg-white px-5 py-6 sticky top-0 z-20 shadow-sm">
-        <div className="flex justify-between items-center mb-1">
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">StudioFlow</h1>
-          <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 font-bold border border-slate-200">
+    <div className="min-h-screen bg-[#FDFCF8] text-[#1c1c1a] font-sans selection:bg-black selection:text-white">
+      
+      {/* Ultra-minimal header */}
+      <header className="px-6 py-10 max-w-lg mx-auto">
+        <h1 className="text-4xl font-black tracking-tighter mb-4">StudioFlow</h1>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center font-bold text-lg">
             {MOCK_MEMBER.name[0]}
           </div>
-        </div>
-        <div className="flex items-center text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full inline-flex mt-2 border border-emerald-100">
-          <Check className="w-4 h-4 mr-1.5" />
-          {MOCK_MEMBER.isUnlimited 
-            ? 'Unlimited Plan Active' 
-            : `${MOCK_MEMBER.creditsRemaining} Credits Remaining`}
+          <div>
+            <p className="font-bold">{MOCK_MEMBER.name}</p>
+            <p className="text-sm font-medium text-black/60">
+              {MOCK_MEMBER.isUnlimited ? 'Unlimited' : `${MOCK_MEMBER.creditsRemaining} credits left`}
+            </p>
+          </div>
         </div>
       </header>
 
-      {/* Schedule Feed */}
-      <div className="px-4 mt-6 space-y-8 max-w-lg mx-auto">
+      {/* Stripped-down list */}
+      <main className="max-w-lg mx-auto px-6 pb-24">
         {MOCK_SCHEDULE.map(day => (
-          <div key={day.dateLabel}>
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 mb-3 px-1">
+          <div key={day.dateLabel} className="mb-12">
+            <h2 className="text-2xl font-black mb-6 tracking-tight border-b-4 border-black inline-block pb-1">
               {day.dateLabel}
             </h2>
-            <div className="space-y-4">
+            
+            <div className="space-y-8">
               {day.classes.map(session => {
                 const isFull = session.bookedCount >= session.capacity
                 const spotsLeft = session.capacity - session.bookedCount
@@ -140,83 +130,64 @@ export default function PublicBookingPage() {
                 const isLoading = bookingLoading === session.id
 
                 return (
-                  <Card key={session.id} className="bg-white border-0 shadow-sm ring-1 ring-slate-200 overflow-hidden">
-                    <div className="p-4 flex gap-4">
-                      {/* Time Column */}
-                      <div className="flex flex-col min-w-[70px]">
-                        <span className="font-bold text-slate-900 text-lg leading-tight">
-                          {session.time.split(' ')[0]}
+                  <div key={session.id} className="group relative">
+                    <div className="flex justify-between items-end mb-2">
+                      <div>
+                        <span className="text-xl font-bold tracking-tight block">
+                          {session.time}
                         </span>
-                        <span className="text-sm font-semibold text-slate-500">
-                          {session.time.split(' ')[1]}
-                        </span>
-                        <span className="text-xs text-slate-400 mt-1 font-medium flex items-center">
-                          {session.durationMinutes}m
+                        <span className="text-black/50 text-sm font-bold uppercase tracking-widest mt-1 block">
+                          {session.durationMinutes} min
                         </span>
                       </div>
-
-                      {/* Details Column */}
-                      <div className="flex-1 border-l border-slate-100 pl-4">
-                        <div className="flex justify-between items-start mb-1">
-                          <h3 className="font-bold text-lg text-slate-900 leading-tight">
-                            {session.name}
-                          </h3>
-                        </div>
-                        <p className="text-slate-600 text-sm font-medium mb-3">
-                          {session.instructor}
-                        </p>
-                        
-                        <div className="flex items-center justify-between mt-auto">
-                          {/* Scarcity Indicator */}
-                          <div className="text-xs font-semibold">
-                            {isFull ? (
-                              <span className="text-slate-500">Class Full</span>
-                            ) : isNearlyFull ? (
-                              <span className="text-amber-600">{spotsLeft} spots left</span>
-                            ) : (
-                              <span className="text-emerald-600">Available</span>
-                            )}
-                          </div>
-
-                          {/* Action Button */}
-                          {session.isBookedByMe ? (
-                            <Button disabled variant="outline" size="sm" className="rounded-full bg-slate-50 text-slate-600 border-slate-200 font-bold h-8 px-4">
-                              <Check className="w-4 h-4 mr-1.5" /> Booked
-                            </Button>
-                          ) : session.isWaitlistedByMe ? (
-                            <Button disabled variant="outline" size="sm" className="rounded-full bg-slate-50 text-slate-600 border-slate-200 font-bold h-8 px-4">
-                              <Check className="w-4 h-4 mr-1.5" /> Waitlisted
-                            </Button>
-                          ) : isFull ? (
-                            <Button 
-                              onClick={() => handleWaitlist(session.id)}
-                              disabled={isLoading}
-                              variant="secondary" 
-                              size="sm" 
-                              className="rounded-full font-bold h-8 px-4 bg-slate-100 text-slate-700 hover:bg-slate-200"
-                            >
-                              {isLoading ? 'Joining...' : 'Join Waitlist'}
-                            </Button>
-                          ) : (
-                            <Button 
-                              onClick={() => handleBook(session.id)}
-                              disabled={isLoading || MOCK_MEMBER.creditsRemaining === 0}
-                              size="sm" 
-                              className="rounded-full font-bold h-8 px-5 bg-slate-900 text-white hover:bg-slate-800 shadow-sm"
-                            >
-                              {isLoading ? 'Booking...' : 'Book'}
-                            </Button>
-                          )}
-                        </div>
+                      
+                      <div className="text-right">
+                        {isFull ? (
+                          <span className="bg-red-100 text-red-900 font-bold px-2 py-1 text-xs uppercase tracking-widest">Full</span>
+                        ) : isNearlyFull ? (
+                          <span className="text-orange-600 font-bold text-sm">{spotsLeft} spots left</span>
+                        ) : null}
                       </div>
                     </div>
-                  </Card>
+
+                    <div className="mb-4">
+                      <h3 className="text-2xl font-black tracking-tight leading-none mb-1">{session.name}</h3>
+                      <p className="font-medium text-black/60">{session.instructor}</p>
+                    </div>
+
+                    {/* Massive brutalist buttons */}
+                    {session.isBookedByMe ? (
+                      <div className="w-full bg-green-100 text-green-900 font-black text-center py-4 text-lg border-2 border-green-900 uppercase tracking-widest">
+                        You're In
+                      </div>
+                    ) : session.isWaitlistedByMe ? (
+                      <div className="w-full bg-black/5 text-black font-black text-center py-4 text-lg border-2 border-black border-dashed uppercase tracking-widest">
+                        On Waitlist
+                      </div>
+                    ) : isFull ? (
+                      <button 
+                        onClick={() => handleBook(session.id)}
+                        disabled={isLoading}
+                        className="w-full bg-white text-black font-black text-center py-4 text-lg border-2 border-black uppercase tracking-widest hover:bg-black/5 active:scale-[0.98] transition-transform disabled:opacity-50"
+                      >
+                        {isLoading ? 'Wait...' : 'Join Waitlist'}
+                      </button>
+                    ) : (
+                      <button 
+                        onClick={() => handleBook(session.id)}
+                        disabled={isLoading}
+                        className="w-full bg-black text-white font-black text-center py-4 text-lg border-2 border-black uppercase tracking-widest hover:bg-black/90 active:scale-[0.98] transition-transform disabled:opacity-50"
+                      >
+                        {isLoading ? 'Booking...' : 'Book'}
+                      </button>
+                    )}
+                  </div>
                 )
               })}
             </div>
           </div>
         ))}
-      </div>
+      </main>
     </div>
   )
 }

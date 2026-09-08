@@ -1,9 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Users, Clock, MapPin, ChevronRight, CheckCircle2 } from 'lucide-react'
+import { Users, Clock, MapPin, ChevronRight, Check } from 'lucide-react'
 
 // --- Types ---
 type ClassStatus = 'scheduled' | 'in_progress' | 'completed'
@@ -111,12 +109,12 @@ const MOCK_SCHEDULE: DaySchedule[] = [
   }
 ]
 
-// --- Helper Functions ---
-function getCapacityUrgency(booked: number, capacity: number) {
+// Chalk-style colors
+function getCapacityColor(booked: number, capacity: number) {
   const ratio = booked / capacity
-  if (ratio >= 1) return 'bg-red-500/20 text-red-400 border-red-500/50' // Full
-  if (ratio >= 0.8) return 'bg-amber-500/20 text-amber-400 border-amber-500/50' // Near full
-  return 'bg-zinc-800 text-zinc-300 border-zinc-700' // Calm / plenty of room
+  if (ratio >= 1) return 'text-rose-400' // Full - red chalk
+  if (ratio >= 0.8) return 'text-amber-300' // Near full - yellow chalk
+  return 'text-emerald-300' // Calm - green chalk
 }
 
 export default function ScheduleView() {
@@ -127,115 +125,119 @@ export default function ScheduleView() {
   }
 
   return (
-    <div className="min-h-screen bg-[#1c1c1a] text-zinc-100 p-4 md:p-8 font-sans">
-      <div className="max-w-5xl mx-auto">
-        <header className="mb-8 flex justify-between items-end border-b border-zinc-800 pb-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-1">Class Schedule</h1>
-            <p className="text-zinc-400">Owner & Instructor View</p>
-          </div>
-          <div className="text-right">
-            <p className="text-sm text-zinc-500">Week of Sep 7, 2026</p>
-          </div>
-        </header>
+    <div className="min-h-screen bg-slate-900 text-slate-300 p-4 md:p-8 font-sans selection:bg-slate-700 selection:text-white">
+      <div className="max-w-4xl mx-auto border-[12px] border-[#2c1d11] rounded-sm bg-[#1e293b] relative shadow-2xl overflow-hidden shadow-black/50">
+        
+        {/* Chalk dust overlay texture */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-screen bg-[url('https://www.transparenttextures.com/patterns/stardust.png')]"></div>
+        
+        <div className="p-6 md:p-10 relative z-10">
+          <header className="mb-8 border-b-2 border-dashed border-slate-600/60 pb-6">
+            <h1 className="text-4xl md:text-5xl font-chalk font-bold text-slate-100 tracking-wide text-center">
+              Weekly Schedule
+            </h1>
+            <p className="text-center font-chalk text-xl text-slate-400 mt-2">Week of Sep 7</p>
+          </header>
 
-        {/* Chalkboard Grid Concept */}
-        <div className="space-y-8">
-          {MOCK_SCHEDULE.map(day => (
-            <section key={day.date} className="relative">
-              <div className="sticky top-0 z-10 bg-[#1c1c1a]/95 backdrop-blur py-2 mb-3 border-b border-zinc-800/50">
-                <h2 className="text-xl font-semibold text-zinc-200">
-                  {day.dayName} <span className="text-zinc-500 text-sm ml-2 font-normal">{day.date}</span>
+          <div className="space-y-12">
+            {MOCK_SCHEDULE.map(day => (
+              <section key={day.date}>
+                <h2 className="text-3xl font-chalk font-bold text-white mb-4 flex items-baseline gap-4">
+                  {day.dayName}
+                  <span className="text-lg text-slate-500">{day.date.split('-').slice(1).join('/')}</span>
                 </h2>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {day.classes.map(session => {
-                  const isExpanded = expandedClassId === session.id
-                  const urgencyClasses = getCapacityUrgency(session.bookedCount, session.capacity)
-                  const isFull = session.bookedCount >= session.capacity
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {day.classes.map(session => {
+                    const isExpanded = expandedClassId === session.id
+                    const capacityColor = getCapacityColor(session.bookedCount, session.capacity)
+                    const isFull = session.bookedCount >= session.capacity
 
-                  return (
-                    <Card 
-                      key={session.id} 
-                      className={`bg-[#252523] border-zinc-700/50 hover:border-zinc-500 transition-colors cursor-pointer overflow-hidden flex flex-col`}
-                      onClick={() => toggleRoster(session.id)}
-                    >
-                      <div className="p-5 flex-1">
-                        <div className="flex justify-between items-start mb-3">
-                          <span className="text-lg font-bold text-zinc-100">{session.startTime}</span>
-                          <div className={`px-2.5 py-0.5 rounded-full text-xs font-bold border ${urgencyClasses} flex items-center gap-1.5`}>
-                            <Users className="w-3.5 h-3.5" />
-                            {session.bookedCount}/{session.capacity}
-                            {isFull && session.waitlistCount > 0 && (
-                              <span className="ml-1 pl-1.5 border-l border-current opacity-80">
-                                +{session.waitlistCount} WL
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <h3 className="text-xl font-bold text-white mb-1">{session.name}</h3>
-                        <p className="text-zinc-400 font-medium mb-4">{session.instructor}</p>
+                    return (
+                      <div 
+                        key={session.id} 
+                        className="group border-2 border-slate-700/60 hover:border-slate-500/80 transition-all cursor-pointer flex flex-col rounded-sm"
+                        onClick={() => toggleRoster(session.id)}
+                      >
+                        <div className="p-5 flex-1 relative">
+                          {/* Corner decorative chalk strokes */}
+                          <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-slate-600/30 -translate-x-[2px] -translate-y-[2px]"></div>
+                          <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-slate-600/30 translate-x-[2px] translate-y-[2px]"></div>
 
-                        <div className="flex gap-4 text-sm text-zinc-500 font-medium">
-                          <div className="flex items-center gap-1.5">
-                            <Clock className="w-4 h-4" />
-                            {session.durationMinutes} min
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <MapPin className="w-4 h-4" />
-                            {session.location}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Inline Roster Expansion */}
-                      {isExpanded && (
-                        <div className="bg-[#1a1a18] border-t border-zinc-800 p-4" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex justify-between items-center mb-3">
-                            <h4 className="font-semibold text-zinc-300">Roster</h4>
-                            <span className="text-xs text-zinc-500">{session.roster.length} members</span>
+                          <div className="flex justify-between items-start mb-4">
+                            <span className="text-xl font-chalk font-bold text-white">{session.startTime}</span>
+                            <div className={`font-chalk text-xl font-bold ${capacityColor} flex items-center`}>
+                              {session.bookedCount}/{session.capacity}
+                              {isFull && session.waitlistCount > 0 && (
+                                <span className="ml-2 text-sm opacity-80 border-l-2 border-current pl-2">+{session.waitlistCount} WL</span>
+                              )}
+                            </div>
                           </div>
                           
-                          {session.roster.length === 0 ? (
-                            <p className="text-sm text-zinc-500 italic">No bookings yet.</p>
-                          ) : (
-                            <ul className="space-y-2">
-                              {session.roster.map(member => (
-                                <li key={member.id} className="flex items-center justify-between bg-[#252523] p-2.5 rounded-md border border-zinc-800/50">
-                                  <div className="flex items-center gap-2">
-                                    {member.checkedIn ? (
-                                      <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                                    ) : (
-                                      <div className="w-4 h-4 rounded-full border-2 border-zinc-600" />
-                                    )}
-                                    <span className="text-sm font-medium text-zinc-200">{member.name}</span>
-                                  </div>
-                                  <Badge variant={member.status === 'waitlisted' ? 'secondary' : 'outline'} className="text-[10px] uppercase tracking-wider bg-transparent border-zinc-700 text-zinc-400">
-                                    {member.status}
-                                  </Badge>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                          <button className="w-full mt-4 bg-[#2a2a28] hover:bg-[#333330] text-zinc-300 text-sm font-semibold py-2 rounded-md transition-colors border border-zinc-700">
-                            Check In All
-                          </button>
+                          <h3 className="text-2xl font-chalk font-bold text-white mb-2 leading-tight">{session.name}</h3>
+                          <p className="text-lg font-chalk text-slate-400 mb-6">{session.instructor}</p>
+
+                          <div className="flex gap-4 text-sm font-sans text-slate-500">
+                            <div className="flex items-center gap-1.5 uppercase tracking-wider">
+                              <Clock className="w-3.5 h-3.5" />
+                              {session.durationMinutes}m
+                            </div>
+                            <div className="flex items-center gap-1.5 uppercase tracking-wider">
+                              <MapPin className="w-3.5 h-3.5" />
+                              {session.location}
+                            </div>
+                          </div>
                         </div>
-                      )}
-                      
-                      {!isExpanded && (
-                        <div className="bg-[#1a1a18]/50 border-t border-zinc-800/50 py-2 px-5 flex justify-center items-center text-zinc-500 group-hover:text-zinc-400">
-                          <ChevronRight className="w-4 h-4" />
-                        </div>
-                      )}
-                    </Card>
-                  )
-                })}
-              </div>
-            </section>
-          ))}
+
+                        {/* Inline Roster Expansion - Rough lines */}
+                        {isExpanded && (
+                          <div className="border-t-2 border-dashed border-slate-700/60 p-5 bg-slate-800/30" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex justify-between items-center mb-4">
+                              <h4 className="font-chalk text-2xl text-slate-200">Roster</h4>
+                              <span className="text-sm font-sans text-slate-500 uppercase tracking-wider">{session.roster.length} signed up</span>
+                            </div>
+                            
+                            {session.roster.length === 0 ? (
+                              <p className="font-chalk text-xl text-slate-500">crickets...</p>
+                            ) : (
+                              <ul className="space-y-3 mb-6">
+                                {session.roster.map(member => (
+                                  <li key={member.id} className="flex items-center justify-between font-chalk text-xl">
+                                    <div className="flex items-center gap-3">
+                                      {member.checkedIn ? (
+                                        <Check className="w-5 h-5 text-emerald-400 stroke-[3]" />
+                                      ) : (
+                                        <div className="w-4 h-4 rounded-full border-2 border-slate-600" />
+                                      )}
+                                      <span className={member.checkedIn ? 'text-slate-400 line-through decoration-slate-600' : 'text-slate-200'}>
+                                        {member.name}
+                                      </span>
+                                    </div>
+                                    <span className="text-sm font-sans uppercase tracking-widest text-slate-500">
+                                      {member.status === 'waitlisted' ? 'WL' : ''}
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                            <button className="w-full bg-transparent border-2 border-slate-600 hover:border-slate-300 text-slate-300 hover:text-white font-chalk text-xl py-2 rounded-sm transition-colors">
+                              Check In All
+                            </button>
+                          </div>
+                        )}
+                        
+                        {!isExpanded && (
+                          <div className="py-2 border-t border-slate-700/30 flex justify-center text-slate-600 group-hover:text-slate-400">
+                            <ChevronRight className="w-5 h-5 opacity-50" />
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
         </div>
       </div>
     </div>
