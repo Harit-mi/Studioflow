@@ -154,12 +154,14 @@ export default function ScheduleView() {
                     const isFull = session.bookedCount >= session.capacity
 
                     return (
-                      <div 
+                      <button 
                         key={session.id} 
-                        className="group border-2 border-slate-700/60 hover:border-slate-500/80 transition-all cursor-pointer flex flex-col rounded-sm"
+                        className="group border-2 border-slate-700/60 hover:border-slate-500/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-500/50 transition-all cursor-pointer flex flex-col rounded-sm text-left relative"
                         onClick={() => toggleRoster(session.id)}
+                        aria-expanded={isExpanded}
+                        aria-controls={`roster-${session.id}`}
                       >
-                        <div className="p-5 flex-1 relative">
+                        <div className="p-5 flex-1 relative w-full">
                           {/* Corner decorative chalk strokes */}
                           <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-slate-600/30 -translate-x-[2px] -translate-y-[2px]"></div>
                           <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-slate-600/30 translate-x-[2px] translate-y-[2px]"></div>
@@ -191,7 +193,7 @@ export default function ScheduleView() {
 
                         {/* Inline Roster Expansion - Rough lines */}
                         {isExpanded && (
-                          <div className="border-t-2 border-dashed border-slate-700/60 p-5 bg-slate-800/30" onClick={(e) => e.stopPropagation()}>
+                          <div id={`roster-${session.id}`} className="border-t-2 border-dashed border-slate-700/60 p-5 bg-slate-800/30 w-full" onClick={(e) => e.stopPropagation()}>
                             <div className="flex justify-between items-center mb-4">
                               <h4 className="font-chalk text-2xl text-slate-200">Roster</h4>
                               <span className="text-sm font-sans text-slate-500 uppercase tracking-wider">{session.roster.length} signed up</span>
@@ -220,18 +222,19 @@ export default function ScheduleView() {
                                 ))}
                               </ul>
                             )}
-                            <button className="w-full bg-transparent border-2 border-slate-600 hover:border-slate-300 text-slate-300 hover:text-white font-chalk text-xl py-2 rounded-sm transition-colors">
+                            <button 
+                              type="button"
+                              className="w-full bg-transparent border-2 border-slate-600 hover:border-slate-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-500/50 text-slate-300 hover:text-white font-chalk text-xl py-2 rounded-sm transition-all"
+                            >
                               Check In All
                             </button>
                           </div>
                         )}
                         
-                        {!isExpanded && (
-                          <div className="py-2 border-t border-slate-700/30 flex justify-center text-slate-600 group-hover:text-slate-400">
-                            <ChevronRight className="w-5 h-5 opacity-50" />
-                          </div>
-                        )}
-                      </div>
+                        <div className="py-2 border-t border-slate-700/30 flex justify-center text-slate-600 group-hover:text-slate-400 w-full transition-colors">
+                          <ChevronRight className={`w-5 h-5 opacity-50 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
+                        </div>
+                      </button>
                     )
                   })}
                 </div>

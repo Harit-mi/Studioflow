@@ -157,18 +157,27 @@ export default function PublicBookingPage() {
 
                     {/* Massive brutalist buttons */}
                     {session.isBookedByMe ? (
-                      <div className="w-full bg-green-100 text-green-900 font-black text-center py-4 text-lg border-2 border-green-900 uppercase tracking-widest">
+                      <div 
+                        className="w-full bg-green-100 text-green-900 font-black text-center py-4 text-lg border-2 border-green-900 uppercase tracking-widest"
+                        role="status"
+                        aria-label={`You are booked for ${session.name} at ${session.time}`}
+                      >
                         You're In
                       </div>
                     ) : session.isWaitlistedByMe ? (
-                      <div className="w-full bg-black/5 text-black font-black text-center py-4 text-lg border-2 border-black border-dashed uppercase tracking-widest">
+                      <div 
+                        className="w-full bg-black/5 text-black font-black text-center py-4 text-lg border-2 border-black border-dashed uppercase tracking-widest"
+                        role="status"
+                        aria-label={`You are on the waitlist for ${session.name} at ${session.time}`}
+                      >
                         On Waitlist
                       </div>
                     ) : isFull ? (
                       <button 
                         onClick={() => handleBook(session.id)}
                         disabled={isLoading}
-                        className="w-full bg-white text-black font-black text-center py-4 text-lg border-2 border-black uppercase tracking-widest hover:bg-black/5 active:scale-[0.98] transition-transform disabled:opacity-50"
+                        aria-label={`Join waitlist for ${session.name} at ${session.time}`}
+                        className="w-full bg-white text-black font-black text-center py-4 text-lg border-2 border-black uppercase tracking-widest hover:bg-black/5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-black/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100"
                       >
                         {isLoading ? 'Wait...' : 'Join Waitlist'}
                       </button>
@@ -176,7 +185,8 @@ export default function PublicBookingPage() {
                       <button 
                         onClick={() => handleBook(session.id)}
                         disabled={isLoading}
-                        className="w-full bg-black text-white font-black text-center py-4 text-lg border-2 border-black uppercase tracking-widest hover:bg-black/90 active:scale-[0.98] transition-transform disabled:opacity-50"
+                        aria-label={`Book ${session.name} at ${session.time}`}
+                        className="w-full bg-black text-white font-black text-center py-4 text-lg border-2 border-black uppercase tracking-widest hover:bg-black/90 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-black/20 focus-visible:ring-offset-2 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100"
                       >
                         {isLoading ? 'Booking...' : 'Book'}
                       </button>
