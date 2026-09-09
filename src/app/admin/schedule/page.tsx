@@ -117,6 +117,10 @@ function getCapacityColor(booked: number, capacity: number) {
   return 'text-emerald-300' // Calm - green chalk
 }
 
+import { motion, AnimatePresence } from 'framer-motion'
+
+// ...
+
 export default function ScheduleView() {
   const [expandedClassId, setExpandedClassId] = useState<string | null>(null)
 
@@ -140,28 +144,37 @@ export default function ScheduleView() {
           </header>
 
           <div className="space-y-12">
-            {MOCK_SCHEDULE.map(day => (
-              <section key={day.date}>
+            {MOCK_SCHEDULE.map((day, dayIdx) => (
+              <motion.section 
+                key={day.date}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: dayIdx * 0.1, duration: 0.5, type: 'spring', bounce: 0.2 }}
+              >
                 <h2 className="text-3xl font-chalk font-bold text-white mb-4 flex items-baseline gap-4">
                   {day.dayName}
                   <span className="text-lg text-slate-500">{day.date.split('-').slice(1).join('/')}</span>
                 </h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {day.classes.map(session => {
+                  {day.classes.map((session, i) => {
                     const isExpanded = expandedClassId === session.id
                     const capacityColor = getCapacityColor(session.bookedCount, session.capacity)
                     const isFull = session.bookedCount >= session.capacity
 
                     return (
-                      <button 
+                      <motion.button 
+                        layout
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: (dayIdx * 0.1) + (i * 0.05), type: 'spring', bounce: 0.3, duration: 0.6 }}
                         key={session.id} 
-                        className="group border-2 border-slate-700/60 hover:border-slate-500/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-500/50 transition-all cursor-pointer flex flex-col rounded-sm text-left relative"
+                        className="group border-2 border-slate-700/60 hover:border-slate-500/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-500/50 transition-colors cursor-pointer flex flex-col rounded-sm text-left relative overflow-hidden bg-[#1e293b]"
                         onClick={() => toggleRoster(session.id)}
                         aria-expanded={isExpanded}
                         aria-controls={`roster-${session.id}`}
                       >
-                        <div className="p-5 flex-1 relative w-full">
+                        <motion.div layout="position" className="p-5 flex-1 relative w-full">
                           {/* Corner decorative chalk strokes */}
                           <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-slate-600/30 -translate-x-[2px] -translate-y-[2px]"></div>
                           <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-slate-600/30 translate-x-[2px] translate-y-[2px]"></div>
@@ -189,56 +202,68 @@ export default function ScheduleView() {
                               {session.location}
                             </div>
                           </div>
-                        </div>
+                        </motion.div>
 
-                        {/* Inline Roster Expansion - Rough lines */}
-                        {isExpanded && (
-                          <div id={`roster-${session.id}`} className="border-t-2 border-dashed border-slate-700/60 p-5 bg-slate-800/30 w-full" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex justify-between items-center mb-4">
-                              <h4 className="font-chalk text-2xl text-slate-200">Roster</h4>
-                              <span className="text-sm font-sans text-slate-500 uppercase tracking-wider">{session.roster.length} signed up</span>
-                            </div>
-                            
-                            {session.roster.length === 0 ? (
-                              <p className="font-chalk text-xl text-slate-500">crickets...</p>
-                            ) : (
-                              <ul className="space-y-3 mb-6">
-                                {session.roster.map(member => (
-                                  <li key={member.id} className="flex items-center justify-between font-chalk text-xl">
-                                    <div className="flex items-center gap-3">
-                                      {member.checkedIn ? (
-                                        <Check className="w-5 h-5 text-emerald-400 stroke-[3]" />
-                                      ) : (
-                                        <div className="w-4 h-4 rounded-full border-2 border-slate-600" />
-                                      )}
-                                      <span className={member.checkedIn ? 'text-slate-400 line-through decoration-slate-600' : 'text-slate-200'}>
-                                        {member.name}
-                                      </span>
-                                    </div>
-                                    <span className="text-sm font-sans uppercase tracking-widest text-slate-500">
-                                      {member.status === 'waitlisted' ? 'WL' : ''}
-                                    </span>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                            <button 
-                              type="button"
-                              className="w-full bg-transparent border-2 border-slate-600 hover:border-slate-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-500/50 text-slate-300 hover:text-white font-chalk text-xl py-2 rounded-sm transition-all"
+                        <AnimatePresence initial={false}>
+                          {isExpanded && (
+                            <motion.div 
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+                              id={`roster-${session.id}`} 
+                              className="border-t-2 border-dashed border-slate-700/60 bg-slate-800/30 w-full overflow-hidden" 
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              Check In All
-                            </button>
-                          </div>
-                        )}
+                              <div className="p-5">
+                                <div className="flex justify-between items-center mb-4">
+                                  <h4 className="font-chalk text-2xl text-slate-200">Roster</h4>
+                                  <span className="text-sm font-sans text-slate-500 uppercase tracking-wider">{session.roster.length} signed up</span>
+                                </div>
+                                
+                                {session.roster.length === 0 ? (
+                                  <p className="font-chalk text-xl text-slate-500">crickets...</p>
+                                ) : (
+                                  <ul className="space-y-3 mb-6">
+                                    {session.roster.map(member => (
+                                      <li key={member.id} className="flex items-center justify-between font-chalk text-xl">
+                                        <div className="flex items-center gap-3">
+                                          {member.checkedIn ? (
+                                            <Check className="w-5 h-5 text-emerald-400 stroke-[3]" />
+                                          ) : (
+                                            <div className="w-4 h-4 rounded-full border-2 border-slate-600" />
+                                          )}
+                                          <span className={member.checkedIn ? 'text-slate-400 line-through decoration-slate-600' : 'text-slate-200'}>
+                                            {member.name}
+                                          </span>
+                                        </div>
+                                        <span className="text-sm font-sans uppercase tracking-widest text-slate-500">
+                                          {member.status === 'waitlisted' ? 'WL' : ''}
+                                        </span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                                <motion.button 
+                                  whileTap={{ scale: 0.95 }}
+                                  type="button"
+                                  className="w-full bg-transparent border-2 border-slate-600 hover:border-slate-300 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-slate-500/50 text-slate-300 hover:text-white font-chalk text-xl py-2 rounded-sm transition-colors"
+                                >
+                                  Check In All
+                                </motion.button>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                         
-                        <div className="py-2 border-t border-slate-700/30 flex justify-center text-slate-600 group-hover:text-slate-400 w-full transition-colors">
+                        <motion.div layout="position" className="py-2 border-t border-slate-700/30 flex justify-center text-slate-600 group-hover:text-slate-400 w-full transition-colors">
                           <ChevronRight className={`w-5 h-5 opacity-50 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
-                        </div>
-                      </button>
+                        </motion.div>
+                      </motion.button>
                     )
                   })}
                 </div>
-              </section>
+              </motion.section>
             ))}
           </div>
         </div>

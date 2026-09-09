@@ -84,6 +84,10 @@ const MOCK_SCHEDULE: DaySchedule[] = [
   }
 ]
 
+import { motion } from 'framer-motion'
+
+// ...
+
 export default function PublicBookingPage() {
   const [bookingLoading, setBookingLoading] = useState<string | null>(null)
 
@@ -95,11 +99,34 @@ export default function PublicBookingPage() {
     }, 800)
   }
 
+  // Animation variants
+  const containerVars = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 }
+    }
+  }
+
+  const itemVars = {
+    hidden: { opacity: 0, y: 20 },
+    show: { 
+      opacity: 1, 
+      y: 0,
+      transition: { type: 'spring', bounce: 0.3, duration: 0.6 }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#FDFCF8] text-[#1c1c1a] font-sans selection:bg-black selection:text-white">
       
       {/* Ultra-minimal header */}
-      <header className="px-6 py-10 max-w-lg mx-auto">
+      <motion.header 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+        className="px-6 py-10 max-w-lg mx-auto pt-safe pb-safe"
+      >
         <h1 className="text-4xl font-black tracking-tighter mb-4">StudioFlow</h1>
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center font-bold text-lg">
@@ -112,15 +139,23 @@ export default function PublicBookingPage() {
             </p>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Stripped-down list */}
-      <main className="max-w-lg mx-auto px-6 pb-24">
+      <motion.main 
+        variants={containerVars}
+        initial="hidden"
+        animate="show"
+        className="max-w-lg mx-auto px-6 pb-24"
+      >
         {MOCK_SCHEDULE.map(day => (
           <div key={day.dateLabel} className="mb-12">
-            <h2 className="text-2xl font-black mb-6 tracking-tight border-b-4 border-black inline-block pb-1">
+            <motion.h2 
+              variants={itemVars}
+              className="text-2xl font-black mb-6 tracking-tight border-b-4 border-black inline-block pb-1"
+            >
               {day.dateLabel}
-            </h2>
+            </motion.h2>
             
             <div className="space-y-8">
               {day.classes.map(session => {
@@ -130,7 +165,7 @@ export default function PublicBookingPage() {
                 const isLoading = bookingLoading === session.id
 
                 return (
-                  <div key={session.id} className="group relative">
+                  <motion.div variants={itemVars} key={session.id} className="group relative">
                     <div className="flex justify-between items-end mb-2">
                       <div>
                         <span className="text-xl font-bold tracking-tight block">
@@ -173,31 +208,37 @@ export default function PublicBookingPage() {
                         On Waitlist
                       </div>
                     ) : isFull ? (
-                      <button 
+                      <motion.button 
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: 'spring', bounce: 0.3 }}
                         onClick={() => handleBook(session.id)}
                         disabled={isLoading}
                         aria-label={`Join waitlist for ${session.name} at ${session.time}`}
-                        className="w-full bg-white text-black font-black text-center py-4 text-lg border-2 border-black uppercase tracking-widest hover:bg-black/5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-black/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100"
+                        className="w-full bg-white text-black font-black text-center py-4 text-lg border-2 border-black uppercase tracking-widest hover:bg-black/5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-black/20 disabled:opacity-50"
                       >
                         {isLoading ? 'Wait...' : 'Join Waitlist'}
-                      </button>
+                      </motion.button>
                     ) : (
-                      <button 
+                      <motion.button 
+                        whileHover={{ scale: 1.01 }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={{ type: 'spring', bounce: 0.3 }}
                         onClick={() => handleBook(session.id)}
                         disabled={isLoading}
                         aria-label={`Book ${session.name} at ${session.time}`}
-                        className="w-full bg-black text-white font-black text-center py-4 text-lg border-2 border-black uppercase tracking-widest hover:bg-black/90 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-black/20 focus-visible:ring-offset-2 active:scale-[0.98] transition-all disabled:opacity-50 disabled:active:scale-100"
+                        className="w-full bg-black text-white font-black text-center py-4 text-lg border-2 border-black uppercase tracking-widest hover:bg-black/90 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-black/20 focus-visible:ring-offset-2 disabled:opacity-50"
                       >
                         {isLoading ? 'Booking...' : 'Book'}
-                      </button>
+                      </motion.button>
                     )}
-                  </div>
+                  </motion.div>
                 )
               })}
             </div>
           </div>
         ))}
-      </main>
+      </motion.main>
     </div>
   )
 }
