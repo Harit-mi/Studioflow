@@ -180,7 +180,7 @@ export default function PublicBookingPage() {
                         {isFull ? (
                           <span className="bg-red-100 text-red-900 font-bold px-2 py-1 text-xs uppercase tracking-widest">Full</span>
                         ) : isNearlyFull ? (
-                          <span className="text-orange-600 font-bold text-sm">{spotsLeft} spots left</span>
+                          <span className="bg-black text-white font-bold px-2 py-1 text-xs uppercase tracking-widest">{spotsLeft} spots left</span>
                         ) : null}
                       </div>
                     </div>
@@ -193,10 +193,11 @@ export default function PublicBookingPage() {
                     {/* Massive brutalist buttons */}
                     {session.isBookedByMe ? (
                       <div 
-                        className="w-full bg-green-100 text-green-900 font-black text-center py-4 text-lg border-2 border-green-900 uppercase tracking-widest"
+                        className="w-full bg-black text-white font-black text-center py-4 text-lg border-2 border-black uppercase tracking-widest flex items-center justify-center gap-2"
                         role="status"
                         aria-label={`You are booked for ${session.name} at ${session.time}`}
                       >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>
                         You're In
                       </div>
                     ) : session.isWaitlistedByMe ? (

@@ -192,7 +192,7 @@ export default function ScheduleView() {
                           <h3 className="text-2xl font-chalk font-bold text-white mb-2 leading-tight">{session.name}</h3>
                           <p className="text-lg font-chalk text-slate-400 mb-6">{session.instructor}</p>
 
-                          <div className="flex gap-4 text-sm font-sans text-slate-500">
+                          <div className="flex gap-4 text-sm font-sans text-slate-400">
                             <div className="flex items-center gap-1.5 uppercase tracking-wider">
                               <Clock className="w-3.5 h-3.5" />
                               {session.durationMinutes}m
